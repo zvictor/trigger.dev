@@ -631,11 +631,7 @@ class ProdWorker {
           this.nextResumeAfter = undefined;
           this.waitForPostStart = false;
 
-          for (let i = 0; i < completions.length; i++) {
-            const completion = completions[i];
-
-            if (!completion) continue;
-
+          for (const completion of completions) {
             this._taskRunProcess?.taskRunCompletedNotification(completion);
           }
         },
