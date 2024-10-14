@@ -98,6 +98,8 @@ class ProdWorker {
       }
     | undefined;
 
+  private handleOnWaitForTaskCalls: any[] = [];
+
   #httpPort: number;
   #httpServer: ReturnType<typeof createServer>;
   #coordinatorSocket: ZodSocketConnection<
@@ -197,6 +199,8 @@ class ProdWorker {
   // MARK: TASK WAIT
   async #handleOnWaitForTask(message: OnWaitForTaskMessage, replayIdempotencyKey?: string) {
     logger.log("onWaitForTask", { message });
+
+    this.handleOnWaitForTaskCalls.push({ message, replayIdempotencyKey });
 
     if (this.nextResumeAfter) {
       logger.error("Already waiting for resume, skipping wait for task", {
@@ -586,6 +590,11 @@ class ProdWorker {
       },
       handlers: {
         RESUME_AFTER_DEPENDENCY: async ({ completions }) => {
+          logger.log(
+            "Handling RESUME_AFTER_DEPENDENCY",
+            JSON.stringify({ completions, status: this.#status }, undefined, 2)
+          );
+
           if (!this.paused) {
             logger.error("Failed to resume after dependency: Worker not paused");
             return;
@@ -632,6 +641,7 @@ class ProdWorker {
           this.waitForPostStart = false;
 
           for (const completion of completions) {
+            logger.log("RESUME_AFTER_DEPENDENCY: completing", completion);
             this._taskRunProcess?.taskRunCompletedNotification(completion);
           }
         },
@@ -1289,6 +1299,7 @@ class ProdWorker {
       attemptNumber: this.attemptNumber,
       waitForTaskReplay: this.waitForTaskReplay,
       waitForBatchReplay: this.waitForBatchReplay,
+      handleOnWaitForTaskCalls: this.handleOnWaitForTaskCalls,
     };
   }
 

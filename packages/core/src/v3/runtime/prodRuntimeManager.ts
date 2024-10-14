@@ -63,6 +63,8 @@ export class ProdRuntimeManager implements RuntimeManager {
   }
 
   async waitForTask(params: { id: string; ctx: TaskRunContext }): Promise<TaskRunExecutionResult> {
+    console.log("waitForTask", params);
+
     const promise = new Promise<TaskRunExecutionResult>((resolve) => {
       this._taskWaits.set(params.id, { resolve });
     });
@@ -72,6 +74,8 @@ export class ProdRuntimeManager implements RuntimeManager {
     });
 
     const result = await promise;
+
+    console.log("waitForTask result", result);
 
     clock.reset();
 
@@ -111,9 +115,12 @@ export class ProdRuntimeManager implements RuntimeManager {
   }
 
   resumeTask(completion: TaskRunExecutionResult): void {
+    console.log("resumeTask", completion);
+
     const wait = this._taskWaits.get(completion.id);
 
     if (!wait) {
+      console.error("No wait found for task", completion.id);
       return;
     }
 

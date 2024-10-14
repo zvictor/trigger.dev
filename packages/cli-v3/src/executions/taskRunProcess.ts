@@ -256,6 +256,10 @@ export class TaskRunProcess {
       return;
     }
 
+    logger.debug(`[${this.runId}] sending task run completed notification`, {
+      completion,
+    });
+
     this._ipc?.send("TASK_RUN_COMPLETED_NOTIFICATION", {
       version: "v2",
       completion,

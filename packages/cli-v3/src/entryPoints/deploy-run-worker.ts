@@ -383,6 +383,7 @@ const zodIpc = new ZodIpcConnection({
       }
     },
     TASK_RUN_COMPLETED_NOTIFICATION: async (payload) => {
+      console.log(`Received TASK_RUN_COMPLETED_NOTIFICATION`, payload);
       prodRuntimeManager.resumeTask(payload.completion);
     },
     WAIT_COMPLETED_NOTIFICATION: async () => {
